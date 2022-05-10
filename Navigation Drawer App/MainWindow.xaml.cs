@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,25 +14,39 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Interop;
 using System.Windows.Media.Animation;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace Navigation_Drawer_App
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    
+
+   
     public partial class MainWindow : Window
     {
-        Red_BlackTree tree = new Red_BlackTree();
-        public MainWindow()
-        {
+        Red_BlackTree tree = null;
+        
+        public MainWindow() { 
             InitializeComponent();
+            tree= new Red_BlackTree();
+        }
+        double x = 464, y = 20, time = 2;
+        int cur_page=0,max_page=0;
+        point find_point(Node node) // set toa do diem ve circle
+        {
+            point toado;
+            toado.x = 464 + (node.pos - tree.root.pos) * 40;
+            toado.y = 20 + 60 * node.flo;
 
+            return toado;
         }
         private void ListViewItem_MouseEnter(object sender, MouseEventArgs e)
         {
             // Set tooltip visibility
-
             if (Tg_Btn.IsChecked == true)
             {
                 tt_insert.Visibility = Visibility.Collapsed;
@@ -54,62 +68,8 @@ namespace Navigation_Drawer_App
             }
         }
 
-        
 
-        private void insertBtn_Click(object sender, RoutedEventArgs e)
-        {
-            mainCanvas.Opacity = 0.3;
-
-        }
-        private void mainCanvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            Tg_Btn.IsChecked = false;
-        }
-
-        private void CloseBtn_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        private void deleteBtn_Click(object sender, RoutedEventArgs e)
-        {
-            mainCanvas.Opacity = 0.3;
-        }
-
-        private void btn_delete_Click(object sender, RoutedEventArgs e)
-        {
-            if (tree.Find(Convert.ToInt32(tb_delete.Text)) == null)
-                MessageBox.Show("Number is not exit");
-            else
-            {
-                tree(Convert.ToInt32(tb_delete.Text));
-            } 
-                
-            mainCanvas.Opacity = 1;
-        }
-        private void findBtn_Click(object sender, RoutedEventArgs e)
-        {
-            mainCanvas.Opacity = 0.3;
-        }
-        private void btn_find_Click(object sender, RoutedEventArgs e)
-        {
-            double value;
-            if (!double.TryParse(tb_find.Text, out value))
-                MessageBox.Show("Number is not exit");
-            else if (tree.Find(Convert.ToInt32(tb_find.Text))==null)
-            {
-                MessageBox.Show("Find unseen");
-            }
-            
-                
-            mainCanvas.Opacity = 1;
-        }
-        private void refreshBtn_Click(object sender, RoutedEventArgs e)
-        {
-
-            mainCanvas.Children.Clear();
-        }
-
+        ///
         private void Tg_Btn_Checked(object sender, RoutedEventArgs e)
         {
             mainCanvas.Opacity = 0.3;
@@ -119,139 +79,217 @@ namespace Navigation_Drawer_App
         {
             mainCanvas.Opacity = 1;
         }
-
-
-        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+        ///
+        private void insertBtn_Click(object sender, RoutedEventArgs e)
         {
+            mainCanvas.Opacity = 0.3;
+
+        }
+        private void deleteBtn_Click(object sender, RoutedEventArgs e)
+        {
+            mainCanvas.Opacity = 0.3;
+        }
+        private void findBtn_Click(object sender, RoutedEventArgs e)
+        {
+            mainCanvas.Opacity = 0.3;
+        }
+        private void refreshBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            mainCanvas.Children.Clear();
+        }
+        
+        ///  
+          private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+            {
          
             this.WindowState= WindowState.Minimized;
-        }
-        private void EnlargeBtn_Click(object sender, RoutedEventArgs e)
+             }
+          private void EnlargeBtn_Click(object sender, RoutedEventArgs e)
+             {
+          this.WindowState = WindowState.Maximized;
+               }
+        private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.WindowState = WindowState.Maximized;
+            Close();
         }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+              {
+             if (e.ChangedButton == MouseButton.Left)
+            this.DragMove();
+              }
+
+         ///
+
+        private void mainCanvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
+            Tg_Btn.IsChecked = false;
         }
 
 
 
-        struct point
+        ///  OK 
+        
+
+        private async void btn_insert_Click(object sender, RoutedEventArgs e)
         {
-            public double x, y;
-        }
-        static double x = 464, y = 20, count = 0, floor = 0,time=2 ;
-
-      
-
-        void addLine(double x1, double y1, double x2, double y2)
-        {
-            Line line_1 = new Line();
-            line_1.X1 = x1;
-            line_1.Y1 = y1;
-            line_1.X2 = x2;
-            line_1.Y2 = y2;
-            line_1.Stroke = System.Windows.Media.Brushes.Black;
-            line_1.StrokeThickness = 2;
-            mainCanvas.Children.Add(line_1);
-        }
-
-       
-
-        point find_point(int flo, int pos) // set toa do diem ve circle
-        {
-            point toado;
-            double distane = (928) / (flo * 2 + 1);
-            toado.x = (distane) * pos;
-            toado.y = y + 60 * flo;
-
-            return toado;
-        }
-
-       
-
-        private void btn_insert_Click(object sender, RoutedEventArgs e)
-        {
-            time = 4.1- 0.04 * slider.Value;
-           
-            double value = 0;
-            if (!double.TryParse(tb_insert.Text, out value))
+            mainCanvas.Opacity = 1;
+            time = 4.1 - 0.04 * slider.Value;
+            slider.Value = Math.Round(slider.Value);
+            int value = 0;
+            if (!int.TryParse(tb_insert.Text, out value))
                 MessageBox.Show("Insert number again");
             else
             {
-                Ellipse childCtrl = new Ellipse();
-                //  childCtrl.Name = "Elip"+value_input;
-                childCtrl.StrokeThickness = 2;
-                childCtrl.Stroke = Brushes.Black;
-                childCtrl.Width = 40;
-                childCtrl.Height = 40;
-                childCtrl.Opacity = 0.5;
-              childCtrl.Fill = System.Windows.Media.Brushes.Yellow;
+                tree.Insert(Convert.ToInt32(tb_insert.Text),mainCanvas);
+                cur_page++;
+                max_page++;
+                curpage.Content=cur_page.ToString();
+                maxpage.Content = "/" + max_page.ToString();
+            
+            }
+           
+            tb_insert.Clear();
+
+
+        }
+       
+
+        private void btn_delete_Click(object sender, RoutedEventArgs e)
+        {
+            mainCanvas.Opacity = 1;
+            if (tree.Find(Convert.ToInt32(tb_delete.Text)) == null)
+                MessageBox.Show("Number is not exit");
+            else
+            {
+                tree.Delete(Convert.ToInt32(tb_delete.Text),mainCanvas);
+            } 
                 
-
-                tree.Add(Convert.ToInt32(tb_insert.Text));
-                Label child = new Label();
-                child.Content = tb_insert.Text;
-                child.Foreground = System.Windows.Media.Brushes.Black;
-                child.HorizontalContentAlignment = HorizontalAlignment.Center;
-                
-
-                
-                mainCanvas.Children.Add(child);
-
-
-
-                if (count == 0)
+            
+        }
+       
+        private async void btn_find_Click(object sender, RoutedEventArgs e)
+        {
+            mainCanvas.Opacity = 1;
+            int value;
+            if (!int.TryParse(tb_find.Text, out value))
+                MessageBox.Show("Number is not integer");
+            else if (tree.Find(value)==null)
+            {
+                MessageBox.Show("No find value in tree");
+            }
+            else 
+            {
+                Ellipse Circle = new Ellipse();
+                Circle.StrokeThickness = 3;
+                Circle.Stroke = Brushes.Blue;
+                Circle.Width = 41;
+                Circle.Height = 41;
+                Circle.Opacity = 1;
+                mainCanvas.Children.Add(Circle);
+                Node cur = tree.root;
+                if (value == tree.root.data)
                 {
-                    Canvas.SetTop(childCtrl, y);
-                    Canvas.SetLeft(childCtrl, x);
-
-                    Canvas.SetTop(child, y);
-                    Canvas.SetLeft(child, x);
-
+                    Canvas.SetTop(Circle, y);
+                    Canvas.SetLeft(Circle, x);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                 }
-                else
+                while (cur != null) 
                 {
-                    Node cur = tree.Find(Convert.ToInt32(tb_insert.Text));
-                    Canvas.SetTop(childCtrl, find_point(cur.flo, cur.pos).y);
-                    Canvas.SetLeft(childCtrl, find_point(cur.flo, cur.pos).x);
-
-                    Canvas.SetTop(child, find_point(cur.flo, cur.pos).y);
-                    Canvas.SetLeft(child, find_point(cur.flo, cur.pos).x);
-
-                    double pos_par = Math.Ceiling(cur.pos / 2.0);
-                    double x2 = find_point(cur.flo, cur.pos).x;
-                    double y2 = find_point(cur.flo, cur.pos).y;
-                   
-                    if (cur.flo - 1 == 0 && pos_par == 1)
+                    time=4.1-0.04*slider.Value;
+                    slider.Value = Math.Round(slider.Value);
+                    if (cur.data == value)
                     {
-                        addLine(484, 40, x2 + 20, y2 + 20);
-                        move(childCtrl, 464 - x2, 20 - y2, 0, 0, time);
-                        move1(child, 464 - x2, 20 - y2, 0, 0, time);
+                        break;
+                    }
+                    else if (value < cur.data) cur = cur.left;
+                    else if (value > cur.data) cur = cur.right;
+                    point cur_coordinate = find_point(cur);
+                    if(cur.flo==1 && cur.parent.pos==1)
+                    {
+                        move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
                     }
                     else
                     {
-                        double x1 = find_point(cur.flo - 1, (int)pos_par).x;
-                        double y1 = find_point(cur.flo - 1, (int)pos_par).y;
-                        addLine(x1 + 20, y1 + 20, x2 + 20, y2 = 20);
-                        move(childCtrl, x1 - x2, y1 - y2, 0, 0, time);
-                        move1(child, x1 - x2, y1 - y2, 0, 0, time);
-                    }
-
-
-
+                        point par_coordinate = find_point(cur.parent);
+                        move(Circle,par_coordinate.x-cur_coordinate.x,par_coordinate.y-cur_coordinate.y, 0, 0, time);
+                    } 
+                    Canvas.SetTop(Circle, cur_coordinate.y);
+                    Canvas.SetLeft(Circle, cur_coordinate.x);
+                    await Task.Delay(TimeSpan.FromSeconds(time));
 
                 }
-                mainCanvas.Children.Add(childCtrl);
-                count++;
-                mainCanvas.Opacity = 1;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                mainCanvas.Children.Remove(Circle);
+            } 
+                
             
-            tb_insert.Clear();
-            }
-
+                
+            
         }
+
+        private void Left_Click(object sender, RoutedEventArgs e)
+        {
+            --cur_page;
+            curpage.Content = cur_page.ToString();
+            if (cur_page >= 1)
+            {
+
+                FileStream fs = File.Open("State" + cur_page.ToString() + ".xaml", FileMode.Open, FileAccess.Read);
+                Canvas savedCanvas = XamlReader.Load(fs) as Canvas;
+                fs.Close();
+                mainCanvas.Children.Clear();
+                while (savedCanvas.Children.Count > 0)
+                {
+                    UIElement uie = savedCanvas.Children[0];
+                    savedCanvas.Children.Remove(uie);
+
+                    mainCanvas.Children.Add(uie);
+
+                }
+
+            }
+            else if (cur_page == 0)
+            { mainCanvas.Children.Clear();
+                cur_page = 0;
+            }
+        }
+
+        private void Right_Click(object sender, RoutedEventArgs e)
+        {
+            ++cur_page;
+            curpage.Content = cur_page.ToString();
+            if (cur_page <= max_page)
+            {
+                FileStream fs = File.Open("State" + cur_page.ToString() + ".xaml", FileMode.Open, FileAccess.Read);
+                Canvas savedCanvas = XamlReader.Load(fs) as Canvas;
+                fs.Close();
+                mainCanvas.Children.Clear();
+                while (savedCanvas.Children.Count > 0)
+                {
+                    UIElement uie = savedCanvas.Children[0];
+                    savedCanvas.Children.Remove(uie);
+
+                    mainCanvas.Children.Add(uie);
+
+                }
+            }
+            else
+            {
+                --cur_page;
+                MessageBox.Show("Page current");
+            }
+        }
+
+        
+
+
+        ///
+
+
+
+        ///
+
         public void move(Ellipse target,  double oldX, double oldY, double newX,
        double newY, double time)
         {
