@@ -252,7 +252,6 @@ namespace Navigation_Drawer_App
         private async void InsertFixUp(Node item, Canvas mainCanvas)
         {
             //Checks Red-Black Tree properties
-
             while (item.parent != null && item.parent.colour == Colour.Red)
             {
                 if (item.parent == item.parent.parent.left)
