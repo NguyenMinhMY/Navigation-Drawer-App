@@ -52,8 +52,8 @@ namespace Navigation_Drawer_App
     }
     class Red_BlackTree : Window
     {
-       
-        double x = 464, y = 20,time=1,max_page=0;
+
+        double x = 464, y = 20, time = 1, max_page = 0;
         public Node root { get; set; }
         public Red_BlackTree()
         {
@@ -93,7 +93,7 @@ namespace Navigation_Drawer_App
             {
                 X.parent = Y;
             }
-            
+
 
         }
         private void RightRotate(Node Y)
@@ -128,7 +128,7 @@ namespace Navigation_Drawer_App
             if (Y != null)
             {
                 Y.parent = X;
-            }      
+            }
         }
         public Node Find(int key)
         {
@@ -169,14 +169,14 @@ namespace Navigation_Drawer_App
             //InOrderTraversal();
             mainCanvas.Children.Clear();
             DisplayTree(this.root, mainCanvas);
-            
+
             //await Task.Delay(TimeSpan.FromSeconds(this.time));
         }
         private bool ll = false;
         private bool rr = false;
         private bool lr = false;
         private bool rl = false;
-        
+
         public async void Insert(int item, Canvas mainCanvas)
         {
             Node newItem = new Node(item);
@@ -223,7 +223,7 @@ namespace Navigation_Drawer_App
             update(mainCanvas);
             await Task.Delay(TimeSpan.FromSeconds(this.time));
 
-            InsertFixUp(newItem,mainCanvas);
+            InsertFixUp(newItem, mainCanvas);
             max_page++;
             //await Task.Delay(TimeSpan.FromSeconds(this.time));
             FileStream fs = File.Open("State" + max_page.ToString() + ".xaml", FileMode.Create);
@@ -246,15 +246,14 @@ namespace Navigation_Drawer_App
 
         public async void InOrderTraversal()
         {
-          
             int index = 0;
             InOrderTraversal(this.root, ref index);
         }
-        private async void InsertFixUp(Node item,Canvas mainCanvas)
+        private async void InsertFixUp(Node item, Canvas mainCanvas)
         {
             //Checks Red-Black Tree properties
 
-            while (item.parent!=null && item.parent.colour == Colour.Red)
+            while (item.parent != null && item.parent.colour == Colour.Red)
             {
                 if (item.parent == item.parent.parent.left)
                 {
@@ -435,7 +434,7 @@ namespace Navigation_Drawer_App
                 await Task.Delay(TimeSpan.FromSeconds(this.time));
             }
         }
-        public void Delete(int key,Canvas mainCanvas)
+        public void Delete(int key, Canvas mainCanvas)
         {
 
             Node item = Find(key);
@@ -484,12 +483,12 @@ namespace Navigation_Drawer_App
             }
             if (Y.colour == Colour.Black)
             {
-                DeleteFixUp(X,mainCanvas);
+                DeleteFixUp(X, mainCanvas);
             }
 
             update(mainCanvas);
         }
-        private async void DeleteFixUp(Node X,Canvas mainCanvas)
+        private async void DeleteFixUp(Node X, Canvas mainCanvas)
         {
 
             while (X != null && X != root && X.colour == Colour.Black)
@@ -525,7 +524,7 @@ namespace Navigation_Drawer_App
 
                         //InOrderTraversal();
                         update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time)); 
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
                         X = X.parent; //case 2
                     }
                     else if (W.right.colour == Colour.Black)
@@ -676,7 +675,7 @@ namespace Navigation_Drawer_App
 
             return toado;
         }
-        public void Draw_Circle(Node node,Canvas mainCanvas)
+        public void Draw_Circle(Node node, Canvas mainCanvas)
         {
             // draw elip
             Ellipse Circle = new Ellipse();
@@ -700,14 +699,14 @@ namespace Navigation_Drawer_App
             mainCanvas.Children.Add(content);
 
             point coordinate_Circle = find_point(node);
-           
+
 
             Canvas.SetTop(Circle, coordinate_Circle.y);
             Canvas.SetLeft(Circle, coordinate_Circle.x);
 
             Canvas.SetTop(content, coordinate_Circle.y);
             Canvas.SetLeft(content, coordinate_Circle.x);
-    
+
 
             return;
         }
@@ -735,21 +734,21 @@ namespace Navigation_Drawer_App
             Line line_1 = new Line();
             point coordinate_par = find_point(par);
             point coordinate_child = find_point(child);
-            if (child.parent.parent ==null )
+            if (child.parent.parent == null)
             {
-                line_1.X1 = 484 ;
-                line_1.Y1 = 40 ;
-                line_1.X2 = coordinate_child.x+20 ;
-                line_1.Y2 = coordinate_child.y+20;
+                line_1.X1 = 484;
+                line_1.Y1 = 40;
+                line_1.X2 = coordinate_child.x + 20;
+                line_1.Y2 = coordinate_child.y + 20;
             }
             else
             {
-                line_1.X1 = coordinate_par.x+20;
-                line_1.Y1 = coordinate_par.y+20 ;
+                line_1.X1 = coordinate_par.x + 20;
+                line_1.Y1 = coordinate_par.y + 20;
                 line_1.X2 = coordinate_child.x + 20;
-                line_1.Y2 = coordinate_child.y+20;
-            } 
-                
+                line_1.Y2 = coordinate_child.y + 20;
+            }
+
             line_1.Stroke = System.Windows.Media.Brushes.Black;
             line_1.StrokeThickness = 2;
             mainCanvas.Children.Add(line_1);
@@ -777,7 +776,7 @@ namespace Navigation_Drawer_App
                 }
 
                 Draw_Circle(node, mainCanvas);
-               
+
                 DisplayTree(node.left, mainCanvas);
                 DisplayTree(node.right, mainCanvas);
 
@@ -785,6 +784,6 @@ namespace Navigation_Drawer_App
             }
             else return;
         }
-        
+
     }
 }
