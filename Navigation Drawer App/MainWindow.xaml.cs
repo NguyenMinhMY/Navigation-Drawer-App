@@ -25,17 +25,18 @@ namespace Navigation_Drawer_App
     /// Interaction logic for MainWindow.xaml
     /// </summary>
 
-   
+
     public partial class MainWindow : Window
     {
         Red_BlackTree tree = null;
-        
-        public MainWindow() { 
+
+        public MainWindow()
+        {
             InitializeComponent();
-            tree= new Red_BlackTree();
+            tree = new Red_BlackTree();
         }
         double x = 464, y = 20, time = 2;
-        int cur_page=0,max_page=0;
+        int cur_page = 0, max_page = 0;
         point find_point(Node node) // set toa do diem ve circle
         {
             point toado;
@@ -57,7 +58,7 @@ namespace Navigation_Drawer_App
 
             }
             else
-            
+
             {
                 tt_insert.Visibility = Visibility.Visible;
                 tt_remove.Visibility = Visibility.Visible;
@@ -98,28 +99,27 @@ namespace Navigation_Drawer_App
 
             mainCanvas.Children.Clear();
         }
-        
+
         ///  
-          private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
-            {
-         
-            this.WindowState= WindowState.Minimized;
-             }
-          private void EnlargeBtn_Click(object sender, RoutedEventArgs e)
-             {
-          this.WindowState = WindowState.Maximized;
-               }
+        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+        private void EnlargeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Maximized;
+        }
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-              {
-             if (e.ChangedButton == MouseButton.Left)
-            this.DragMove();
-              }
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
 
-         ///
+        ///
 
         private void mainCanvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -129,7 +129,7 @@ namespace Navigation_Drawer_App
 
 
         ///  OK 
-        
+
 
         private async void btn_insert_Click(object sender, RoutedEventArgs e)
         {
@@ -141,19 +141,19 @@ namespace Navigation_Drawer_App
                 MessageBox.Show("Insert number again");
             else
             {
-                tree.Insert(Convert.ToInt32(tb_insert.Text),mainCanvas);
+                tree.Insert(Convert.ToInt32(tb_insert.Text), mainCanvas);
                 cur_page++;
                 max_page++;
-                curpage.Content=cur_page.ToString();
+                curpage.Content = cur_page.ToString();
                 maxpage.Content = "/" + max_page.ToString();
-            
+
             }
-           
+
             tb_insert.Clear();
 
 
         }
-       
+
 
         private void btn_delete_Click(object sender, RoutedEventArgs e)
         {
@@ -162,23 +162,23 @@ namespace Navigation_Drawer_App
                 MessageBox.Show("Number is not exit");
             else
             {
-                tree.Delete(Convert.ToInt32(tb_delete.Text),mainCanvas);
-            } 
-                
-            
+                tree.Delete(Convert.ToInt32(tb_delete.Text), mainCanvas);
+            }
+
+
         }
-       
+
         private async void btn_find_Click(object sender, RoutedEventArgs e)
         {
             mainCanvas.Opacity = 1;
             int value;
             if (!int.TryParse(tb_find.Text, out value))
                 MessageBox.Show("Number is not integer");
-            else if (tree.Find(value)==null)
+            else if (tree.Find(value) == null)
             {
                 MessageBox.Show("No find value in tree");
             }
-            else 
+            else
             {
                 Ellipse Circle = new Ellipse();
                 Circle.StrokeThickness = 3;
@@ -194,9 +194,9 @@ namespace Navigation_Drawer_App
                     Canvas.SetLeft(Circle, x);
                     await Task.Delay(TimeSpan.FromSeconds(1));
                 }
-                while (cur != null) 
+                while (cur != null)
                 {
-                    time=4.1-0.04*slider.Value;
+                    time = 4.1 - 0.04 * slider.Value;
                     slider.Value = Math.Round(slider.Value);
                     if (cur.data == value)
                     {
@@ -205,15 +205,15 @@ namespace Navigation_Drawer_App
                     else if (value < cur.data) cur = cur.left;
                     else if (value > cur.data) cur = cur.right;
                     point cur_coordinate = find_point(cur);
-                    if(cur.flo==1 && cur.parent.pos==1)
+                    if (cur.flo == 1 && cur.parent.pos == 1)
                     {
                         move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
                     }
                     else
                     {
                         point par_coordinate = find_point(cur.parent);
-                        move(Circle,par_coordinate.x-cur_coordinate.x,par_coordinate.y-cur_coordinate.y, 0, 0, time);
-                    } 
+                        move(Circle, par_coordinate.x - cur_coordinate.x, par_coordinate.y - cur_coordinate.y, 0, 0, time);
+                    }
                     Canvas.SetTop(Circle, cur_coordinate.y);
                     Canvas.SetLeft(Circle, cur_coordinate.x);
                     await Task.Delay(TimeSpan.FromSeconds(time));
@@ -221,11 +221,11 @@ namespace Navigation_Drawer_App
                 }
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 mainCanvas.Children.Remove(Circle);
-            } 
-                
-            
-                
-            
+            }
+
+
+
+
         }
 
         private void Left_Click(object sender, RoutedEventArgs e)
@@ -250,7 +250,8 @@ namespace Navigation_Drawer_App
 
             }
             else if (cur_page == 0)
-            { mainCanvas.Children.Clear();
+            {
+                mainCanvas.Children.Clear();
                 cur_page = 0;
             }
         }
@@ -281,33 +282,33 @@ namespace Navigation_Drawer_App
             }
         }
 
-        
-
-
-        ///
 
 
 
         ///
 
-        public void move(Ellipse target,  double oldX, double oldY, double newX,
+
+
+        ///
+
+        public void move(Ellipse target, double oldX, double oldY, double newX,
        double newY, double time)
         {
             TranslateTransform trans = new TranslateTransform();
-        
-           target.RenderTransform = trans;
-            target.RenderTransformOrigin =  new Point(0, 0);
+
+            target.RenderTransform = trans;
+            target.RenderTransformOrigin = new Point(0, 0);
             DoubleAnimation anim1 = new DoubleAnimation(oldY, newY,
     TimeSpan.FromSeconds(time));
-         
+
             trans.BeginAnimation(TranslateTransform.YProperty, anim1);
-         
+
             DoubleAnimation anim2 = new DoubleAnimation(oldX, newX,
     TimeSpan.FromSeconds(time));
-        
+
             trans.BeginAnimation(TranslateTransform.XProperty, anim2);
 
-          
+
         }
         public void move1(Label target, double oldX, double oldY, double newX,
       double newY, double time)

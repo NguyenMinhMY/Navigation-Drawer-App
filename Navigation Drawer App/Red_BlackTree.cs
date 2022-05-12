@@ -172,10 +172,6 @@ namespace Navigation_Drawer_App
 
             //await Task.Delay(TimeSpan.FromSeconds(this.time));
         }
-        private bool ll = false;
-        private bool rr = false;
-        private bool lr = false;
-        private bool rl = false;
 
         public async void Insert(int item, Canvas mainCanvas)
         {
