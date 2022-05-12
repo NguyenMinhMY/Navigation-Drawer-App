@@ -238,7 +238,7 @@ namespace Navigation_Drawer_App
                 InOrderTraversal(current.left, ref index);
 
                 current.pos = index;
-                index = index + 1;
+                index++;
 
                 InOrderTraversal(current.right, ref index);
             }
@@ -671,7 +671,7 @@ namespace Navigation_Drawer_App
         point find_point(Node node) // set toa do diem ve circle
         {
             point toado;
-            toado.x = 464 +(node.pos - this.root.pos)*40;
+            toado.x = 464 + (node.pos - this.root.pos) * 40;
             toado.y = 20 + 60 * node.flo;
 
             return toado;
@@ -702,11 +702,11 @@ namespace Navigation_Drawer_App
             point coordinate_Circle = find_point(node);
            
 
-                Canvas.SetTop(Circle, coordinate_Circle.y);
-                Canvas.SetLeft(Circle, coordinate_Circle.x);
+            Canvas.SetTop(Circle, coordinate_Circle.y);
+            Canvas.SetLeft(Circle, coordinate_Circle.x);
 
-                Canvas.SetTop(content, coordinate_Circle.y);
-                Canvas.SetLeft(content, coordinate_Circle.x);
+            Canvas.SetTop(content, coordinate_Circle.y);
+            Canvas.SetLeft(content, coordinate_Circle.x);
     
 
             return;
