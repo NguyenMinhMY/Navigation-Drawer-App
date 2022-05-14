@@ -28,15 +28,16 @@ namespace Navigation_Drawer_App
 
     public partial class MainWindow : Window
     {
-        Red_BlackTree tree = null;
-
+     
+        RBTree tree = null;
+        //List<Node> list_node= new List<Node>();
+        List<RBTree> list_tree = new List<RBTree>();
         public MainWindow()
         {
             InitializeComponent();
-            tree = new Red_BlackTree();
+            tree = new RBTree();
         }
-        double x = 464, y = 20, time = 2;
-        int cur_page = 0, max_page = 0;
+        int hide = 0;
         point find_point(Node node) // set toa do diem ve circle
         {
             point toado;
@@ -45,70 +46,104 @@ namespace Navigation_Drawer_App
 
             return toado;
         }
-        private void ListViewItem_MouseEnter(object sender, MouseEventArgs e)
-        {
-            // Set tooltip visibility
-            if (Tg_Btn.IsChecked == true)
-            {
-                tt_insert.Visibility = Visibility.Collapsed;
-                tt_remove.Visibility = Visibility.Collapsed;
-                tt_find.Visibility = Visibility.Collapsed;
-                tt_download.Visibility = Visibility.Collapsed;
-                tt_refresh.Visibility = Visibility.Collapsed;
-
-            }
-            else
-
-            {
-                tt_insert.Visibility = Visibility.Visible;
-                tt_remove.Visibility = Visibility.Visible;
-                tt_find.Visibility = Visibility.Visible;
-                tt_download.Visibility = Visibility.Visible;
-                tt_refresh.Visibility = Visibility.Visible;
-
-            }
-        }
 
 
-        ///
-        private void Tg_Btn_Checked(object sender, RoutedEventArgs e)
-        {
-            mainCanvas.Opacity = 0.3;
-        }
-
-        private void Tg_Btn_Unchecked(object sender, RoutedEventArgs e)
-        {
-            mainCanvas.Opacity = 1;
-        }
         ///
         private void insertBtn_Click(object sender, RoutedEventArgs e)
         {
-            mainCanvas.Opacity = 0.3;
+            if (hide == 0)
+            {
+                hide++;
+                mainCanvas.Opacity = 0.3;
+
+                DoubleAnimation myDoubleAnimation = new DoubleAnimation();
+                myDoubleAnimation.From = 0;
+                myDoubleAnimation.To = 300;
+                myDoubleAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(100));
+
+                Storyboard.SetTargetName(myDoubleAnimation, "insert_Grid");
+                Storyboard.SetTargetProperty(myDoubleAnimation, new PropertyPath(Button.WidthProperty));
+
+                Storyboard insert_Storyboard = new Storyboard();
+                insert_Storyboard.Children.Add(myDoubleAnimation);
+
+
+                insert_Storyboard.Begin(insertBtn);
+
+
+            }
 
         }
         private void deleteBtn_Click(object sender, RoutedEventArgs e)
         {
-            mainCanvas.Opacity = 0.3;
+            if (hide == 0)
+            {
+                hide++;
+                mainCanvas.Opacity = 0.3;
+
+                DoubleAnimation myDoubleAnimation = new DoubleAnimation();
+                myDoubleAnimation.From = 0;
+                myDoubleAnimation.To = 300;
+                myDoubleAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(100));
+
+                Storyboard.SetTargetName(myDoubleAnimation, "delete_Grid");
+                Storyboard.SetTargetProperty(myDoubleAnimation, new PropertyPath(Button.WidthProperty));
+
+                Storyboard delete_Storyboard = new Storyboard();
+                delete_Storyboard.Children.Add(myDoubleAnimation);
+
+
+                delete_Storyboard.Begin(findBtn);
+
+
+            }
         }
         private void findBtn_Click(object sender, RoutedEventArgs e)
         {
-            mainCanvas.Opacity = 0.3;
+            if (hide == 0)
+            {
+                hide++;
+                mainCanvas.Opacity = 0.3;
+
+
+
+                DoubleAnimation myDoubleAnimation = new DoubleAnimation();
+                myDoubleAnimation.From = 0;
+                myDoubleAnimation.To = 300;
+                myDoubleAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(100));
+
+                Storyboard.SetTargetName(myDoubleAnimation, "find_Grid");
+                Storyboard.SetTargetProperty(myDoubleAnimation, new PropertyPath(Button.WidthProperty));
+
+                Storyboard find_Storyboard = new Storyboard();
+                find_Storyboard.Children.Add(myDoubleAnimation);
+
+
+                find_Storyboard.Begin(findBtn);
+
+
+
+            }
         }
         private void refreshBtn_Click(object sender, RoutedEventArgs e)
         {
-
-            mainCanvas.Children.Clear();
+            if (hide == 0)
+            {
+                
+                tree.root = null;
+                //list_node.Clear();
+                list_tree.Clear();
+                mainCanvas.Children.Clear();
+            }
         }
 
         ///  
         private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
         {
+
             this.WindowState = WindowState.Minimized;
         }
-        private void EnlargeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Maximized;
-        }
+     
         private void CloseBtn_Click(object sender, RoutedEventArgs e)
         {
             Close();
@@ -118,53 +153,62 @@ namespace Navigation_Drawer_App
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
         }
-
-        ///
-
-        private void mainCanvas_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private List<int> num_string(String s)
         {
-            Tg_Btn.IsChecked = false;
+            List<int> list = new List<int>(); 
+           string start = s.Substring(1, s.IndexOf('.') - 1);
+            string end = s.Substring(s.LastIndexOf('.')+1, s.Length-2- s.LastIndexOf('.'));
+
+            for (int i = Convert.ToInt32(start); i <= Convert.ToInt32(end); i++) 
+            {
+                list.Add(i);
+             
+            }
+            return list; 
+          
+
         }
-
-
-
-        ///  OK 
-
-
         private async void btn_insert_Click(object sender, RoutedEventArgs e)
         {
+
+
             mainCanvas.Opacity = 1;
-            time = 4.1 - 0.04 * slider.Value;
-            slider.Value = Math.Round(slider.Value);
+    ;
             int value = 0;
-            if (!int.TryParse(tb_insert.Text, out value))
+             if (!int.TryParse(tb_insert.Text, out value))
                 MessageBox.Show("Insert number again");
+         
             else
             {
-                tree.Insert(Convert.ToInt32(tb_insert.Text), mainCanvas);
-                cur_page++;
-                max_page++;
-                curpage.Content = cur_page.ToString();
-                maxpage.Content = "/" + max_page.ToString();
-
+                tree.insert(Convert.ToInt32(tb_insert.Text), mainCanvas);
+                //Node newRoot = tree.clone();
+                //list_node.Add(newRoot);
+                RBTree newTree = tree.cloneTree();
+                list_tree.Add(newTree);
             }
 
             tb_insert.Clear();
 
+            hide--;
 
         }
-
-
         private void btn_delete_Click(object sender, RoutedEventArgs e)
         {
+
             mainCanvas.Opacity = 1;
-            if (tree.Find(Convert.ToInt32(tb_delete.Text)) == null)
+            int value = 0;
+            if (!int.TryParse(tb_delete.Text, out value))
+                MessageBox.Show("Enter the number to delete");
+            else if (tree.search(value) == null)
                 MessageBox.Show("Number is not exit");
             else
             {
-                tree.Delete(Convert.ToInt32(tb_delete.Text), mainCanvas);
-            }
+                tree.deleteByVal(value, mainCanvas);
 
+
+            }
+            tb_delete.Clear();
+            hide--;
 
         }
 
@@ -174,157 +218,35 @@ namespace Navigation_Drawer_App
             int value;
             if (!int.TryParse(tb_find.Text, out value))
                 MessageBox.Show("Number is not integer");
-            else if (tree.Find(value) == null)
+            else if ( tree.search(value).val !=value)
             {
-                MessageBox.Show("No find value in tree");
+                MessageBox.Show("This value is not in tree");
             }
             else
             {
-                Ellipse Circle = new Ellipse();
-                Circle.StrokeThickness = 3;
-                Circle.Stroke = Brushes.Blue;
-                Circle.Width = 41;
-                Circle.Height = 41;
-                Circle.Opacity = 1;
-                mainCanvas.Children.Add(Circle);
-                Node cur = tree.root;
-                if (value == tree.root.data)
-                {
-                    Canvas.SetTop(Circle, y);
-                    Canvas.SetLeft(Circle, x);
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                }
-                while (cur != null)
-                {
-                    time = 4.1 - 0.04 * slider.Value;
-                    slider.Value = Math.Round(slider.Value);
-                    if (cur.data == value)
-                    {
-                        break;
-                    }
-                    else if (value < cur.data) cur = cur.left;
-                    else if (value > cur.data) cur = cur.right;
-                    point cur_coordinate = find_point(cur);
-                    if (cur.flo == 1 && cur.parent.pos == 1)
-                    {
-                        move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
-                    }
-                    else
-                    {
-                        point par_coordinate = find_point(cur.parent);
-                        move(Circle, par_coordinate.x - cur_coordinate.x, par_coordinate.y - cur_coordinate.y, 0, 0, time);
-                    }
-                    Canvas.SetTop(Circle, cur_coordinate.y);
-                    Canvas.SetLeft(Circle, cur_coordinate.x);
-                    await Task.Delay(TimeSpan.FromSeconds(time));
-
-                }
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                mainCanvas.Children.Remove(Circle);
+                tree.find(value, mainCanvas);
+              
             }
 
+            tb_find.Clear();
 
-
+            hide--;
 
         }
 
         private void Left_Click(object sender, RoutedEventArgs e)
         {
-            --cur_page;
-            curpage.Content = cur_page.ToString();
-            if (cur_page >= 1)
+            if(list_tree.Count == 0) 
+                return;
+            list_tree.RemoveAt(list_tree.Count-1);
+
+            if (list_tree.Count > 0)
             {
-
-                FileStream fs = File.Open("State" + cur_page.ToString() + ".xaml", FileMode.Open, FileAccess.Read);
-                Canvas savedCanvas = XamlReader.Load(fs) as Canvas;
-                fs.Close();
-                mainCanvas.Children.Clear();
-                while (savedCanvas.Children.Count > 0)
-                {
-                    UIElement uie = savedCanvas.Children[0];
-                    savedCanvas.Children.Remove(uie);
-
-                    mainCanvas.Children.Add(uie);
-
-                }
-
+                tree = list_tree[list_tree.Count-1];
             }
-            else if (cur_page == 0)
-            {
-                mainCanvas.Children.Clear();
-                cur_page = 0;
-            }
-        }
-
-        private void Right_Click(object sender, RoutedEventArgs e)
-        {
-            ++cur_page;
-            curpage.Content = cur_page.ToString();
-            if (cur_page <= max_page)
-            {
-                FileStream fs = File.Open("State" + cur_page.ToString() + ".xaml", FileMode.Open, FileAccess.Read);
-                Canvas savedCanvas = XamlReader.Load(fs) as Canvas;
-                fs.Close();
-                mainCanvas.Children.Clear();
-                while (savedCanvas.Children.Count > 0)
-                {
-                    UIElement uie = savedCanvas.Children[0];
-                    savedCanvas.Children.Remove(uie);
-
-                    mainCanvas.Children.Add(uie);
-
-                }
-            }
-            else
-            {
-                --cur_page;
-                MessageBox.Show("Page current");
-            }
-        }
-
-
-
-
-        ///
-
-
-
-        ///
-
-        public void move(Ellipse target, double oldX, double oldY, double newX,
-       double newY, double time)
-        {
-            TranslateTransform trans = new TranslateTransform();
-
-            target.RenderTransform = trans;
-            target.RenderTransformOrigin = new Point(0, 0);
-            DoubleAnimation anim1 = new DoubleAnimation(oldY, newY,
-    TimeSpan.FromSeconds(time));
-
-            trans.BeginAnimation(TranslateTransform.YProperty, anim1);
-
-            DoubleAnimation anim2 = new DoubleAnimation(oldX, newX,
-    TimeSpan.FromSeconds(time));
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim2);
-
-
-        }
-        public void move1(Label target, double oldX, double oldY, double newX,
-      double newY, double time)
-        {
-            TranslateTransform trans = new TranslateTransform();
-            target.RenderTransform = trans;
-            target.RenderTransformOrigin = new Point(0, 0);
-            DoubleAnimation anim1 = new DoubleAnimation(oldY, newY,
-    TimeSpan.FromSeconds(time));
-
-            trans.BeginAnimation(TranslateTransform.YProperty, anim1);
-
-            DoubleAnimation anim2 = new DoubleAnimation(oldX, newX,
-    TimeSpan.FromSeconds(time));
-
-            trans.BeginAnimation(TranslateTransform.XProperty, anim2);
+            else tree.root = null;
+            tree.InOrderTraversal();
+            tree.update(mainCanvas);
 
         }
 
