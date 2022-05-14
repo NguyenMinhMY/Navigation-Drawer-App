@@ -21,7 +21,7 @@ using System.Windows.Markup;
 
 namespace Navigation_Drawer_App
 {
-    class Node
+    /*class Node
     {
         public Node left { get; set; }
         public Node right { get; set; }
@@ -40,129 +40,870 @@ namespace Navigation_Drawer_App
             this.right = this.left = this.parent = null;
         }
         public Node() { }
-    }
-    enum Colour
+    }*/
+    /*public enum Colour
     {
         Red,
         Black
-    }
+    }*/
     struct point
     {
         public double x, y;
     }
-    class Red_BlackTree : Window
+    public enum COLOR { RED,BLACK} 
+    class Node
     {
 
-        double x = 464, y = 20, time = 1, max_page = 0;
-        public Node root { get; set; }
-        public Red_BlackTree()
+        public int val;
+        public COLOR color;
+        public Node left, right, parent;
+        public int pos, flo;
+
+        public Node(int val)
         {
-            //InitializeComponent();
-            this.root = null;
+            this.val = val;
+            parent = left = right = null;
+            // Node is created during insertion
+            // Node is red at insertion
+            color = COLOR.RED;
         }
-        //static int index = 0;
-        private void LeftRotate(Node X)
+        // returns pointer to uncle
+        public Node uncle()
         {
-            Node Y = X.right;
-            X.right = Y.left;
-            if (Y.left != null)
+            // If no parent or grandparent, then no uncle
+            if (parent == null || parent.parent == null)
+                return null;
+
+            if (parent.isOnLeft())
+                // uncle on right
+                return parent.parent.right;
+            else
+                // uncle on left
+                return parent.parent.left;
+        }
+
+        // check if node is left child of parent
+        public bool isOnLeft() { return this == parent.left; }
+
+        // returns pointer to sibling
+        public Node sibling()
+        {
+            // sibling null if no parent
+            if (parent == null)
+                return null;
+
+            if (isOnLeft())
+                return parent.right;
+
+            return parent.left;
+        }
+
+        // moves node down and moves given node in its place
+        public void moveDown(Node nParent)
+        {
+            if (parent != null)
             {
-                Y.left.parent = X;
-            }
-            if (Y != null)
-            {
-                Y.parent = X.parent;//link X's parent to Y
-            }
-            if (X.parent == null)
-            {
-                root = Y;
-            }
-            if (X.parent != null)
-            {
-                if (X == X.parent.left)
+                if (isOnLeft())
                 {
-                    X.parent.left = Y;
+                    parent.left = nParent;
                 }
                 else
                 {
-                    X.parent.right = Y;
+                    parent.right = nParent;
                 }
             }
-            Y.left = X; //put X on Y's left
-            if (X != null)
-            {
-                X.parent = Y;
-            }
-
-
+            nParent.parent = parent;
+            parent = nParent;
         }
-        private void RightRotate(Node Y)
+
+        public bool hasRedChild()
         {
-            Node X = Y.left;
-            Y.left = X.right;
-            if (X.right != null)
+            return (left != null && left.color == COLOR.RED) ||
+                (right != null && right.color == COLOR.RED);
+        }
+    };
+
+    class RBTree : Window
+    {
+        double  time = 1, max_page = 0;
+        public Node root;
+
+        // left rotates the given node
+        void leftRotate(Node x)
+        {
+            // new parent will be node's right child
+            Node nParent = x.right;
+
+            // update root if current node is root
+            if (x == root)
+                root = nParent;
+
+            x.moveDown(nParent);
+
+            // connect x with new parent's left element
+            x.right = nParent.left;
+            // connect new parent's left element with node
+            // if it is not null
+            if (nParent.left != null)
+                nParent.left.parent = x;
+
+            // connect new parent with x
+            nParent.left = x;
+        }
+
+        void rightRotate(Node x)
+        {
+            // new parent will be node's left child
+            Node nParent = x.left;
+
+            // update root if current node is root
+            if (x == root)
+                root = nParent;
+
+            x.moveDown(nParent);
+
+            // connect x with new parent's right element
+            x.left = nParent.right;
+            // connect new parent's right element with node
+            // if it is not null
+            if (nParent.right != null)
+                nParent.right.parent = x;
+
+            // connect new parent with x
+            nParent.right = x;
+        }
+
+        void swapColors(Node x1, Node x2)
+        {
+            COLOR temp;
+            temp = x1.color;
+            x1.color = x2.color;
+            x2.color = temp;
+        }
+
+        void swapValues(Node u, Node v)
+        {
+            int temp;
+            temp = u.val;
+            u.val = v.val;
+            v.val = temp;
+        }
+
+        // fix red red at given node
+        async void fixRedRed(Node x,Canvas mainCanvas)
+        {
+            // if x is root color it black and return
+            if (x == root)
             {
-                X.right.parent = Y;
-            }
-            if (X != null)
-            {
-                X.parent = Y.parent;
-            }
-            if (Y.parent == null)
-            {
-                root = X;
-            }
-            if (Y.parent != null)
-            {
-                if (Y == Y.parent.right)
-                {
-                    Y.parent.right = X;
-                }
-                if (Y == Y.parent.left)
-                {
-                    Y.parent.left = X;
-                }
+                x.color = COLOR.BLACK;
+                //InOrderTraversal();
+                update(mainCanvas);
+                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                return;
             }
 
-            X.right = Y;
-            if (Y != null)
+            // initialize parent, grandparent, uncle
+            Node parent = x.parent, grandparent = parent.parent,
+            uncle = x.uncle();
+
+            if (parent.color != COLOR.BLACK)
             {
-                Y.parent = X;
-            }
-        }
-        public Node Find(int key)
-        {
-            bool isFound = false;
-            Node temp = root;
-            Node item = null;
-            while (!isFound)
-            {
-                if (temp == null)
+                if (uncle != null && uncle.color == COLOR.RED)
                 {
-                    break;
-                }
-                if (key < temp.data)
-                {
-                    temp = temp.left;
-                }
-                else if (key > temp.data)
-                {
-                    temp = temp.right;
+                    // uncle red, perform recoloring and recurse
+                    parent.color = COLOR.BLACK;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    uncle.color = COLOR.BLACK;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    grandparent.color = COLOR.RED;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    fixRedRed(grandparent,mainCanvas);
                 }
                 else
                 {
-                    isFound = true;
-                    item = temp;
+                    // Else perform LR, LL, RL, RR
+                    if (parent.isOnLeft())
+                    {
+                        if (x.isOnLeft())
+                        {
+                            // for left right
+                            swapColors(parent, grandparent);
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+                        else
+                        {
+                            leftRotate(parent);
+                            InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            swapColors(x, grandparent);
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+                        // for left left and left right
+                        rightRotate(grandparent);
+                        InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                    else
+                    {
+                        if (x.isOnLeft())
+                        {
+                            // for right left
+                            rightRotate(parent);
+                            InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            swapColors(x, grandparent);
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+                        else
+                        {
+                            swapColors(parent, grandparent);
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+
+                        // for right right and right left
+                        leftRotate(grandparent);
+                        InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
                 }
             }
-            if (isFound)
+        }
+
+        // find node that do not have a left child
+        // in the subtree of the given node
+        Node successor(Node x)
+        {
+            Node temp = x;
+
+            while (temp.left != null)
+                temp = temp.left;
+
+            return temp;
+        }
+
+        // find node that replaces a deleted node in BST
+        Node BSTreplace(Node x)
+        {
+            // when node have 2 children
+            if (x.left != null && x.right != null)
+                return successor(x.right);
+
+            // when leaf
+            if (x.left == null && x.right == null)
+                return null;
+
+            // when single child
+            if (x.left != null)
+                return x.left;
+            else
+                return x.right;
+        }
+
+        // deletes the given node
+        public async void deleteNode(Node v,Canvas mainCanvas)
+        {
+            Node u = BSTreplace(v);
+
+            // True when u and v are both black
+
+            bool uvBlack = ((u == null || u.color == COLOR.BLACK) && (v.color == COLOR.BLACK));
+            Node parent = v.parent;
+
+            if (u == null)
             {
-                return temp;
+                // u is null therefore v is leaf
+                if (v == root)
+                {
+                    // v is root, making root null
+                    root = null;
+                    InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                }
+                else
+                {
+                    if (uvBlack)
+                    {
+                        // u and v both black
+                        // v is leaf, fix double black at v
+                        fixDoubleBlack(v,mainCanvas);
+                    }
+                    else
+                    {
+                        // u or v is red
+                        if (v.sibling() != null)
+                        {
+                            // sibling is not null, make it red"
+                            v.sibling().color = COLOR.RED;
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+                            
+                    }
+
+                    // delete v from the tree
+                    if (v.isOnLeft())
+                    {
+                        parent.left = null;
+                        //InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                    else
+                    {
+                        parent.right = null;
+                        //InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                }
+                return;
+            }
+
+            if (v.left == null || v.right == null)
+            {
+                // v has 1 child
+                if (v == root)
+                {
+                    // v is root, assign the value of u to v, and delete u
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    v.val = u.val;
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    v.left = v.right = null;
+                    InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                }
+                else
+                {
+                    // Detach v from tree and move u up
+                    if (v.isOnLeft())
+                    {
+                        parent.left = u;
+
+                    }
+                    else
+                    {
+                        parent.right = u;
+
+                    }
+                    u.parent = parent;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    if (uvBlack)
+                    {
+                        // u and v both black, fix double black at u
+                        fixDoubleBlack(u,mainCanvas);
+                    }
+                    else
+                    {
+                        // u or v red, color u black
+                        u.color = COLOR.BLACK;
+                        //InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                }
+                return;
+            }
+
+            // v has 2 children, swap values with successor and recurse
+            await Task.Delay(TimeSpan.FromSeconds(this.time));
+            swapValues(u, v);
+            //InOrderTraversal();
+            await Task.Delay(TimeSpan.FromSeconds(this.time));
+            update(mainCanvas);
+            await Task.Delay(TimeSpan.FromSeconds(this.time));
+            deleteNode(u,mainCanvas);
+        }
+
+        async void fixDoubleBlack(Node x,Canvas mainCanvas)
+        {
+            if (x == root)
+                // Reached root
+                return;
+
+            Node sibling = x.sibling(), parent = x.parent;
+            if (sibling == null)
+            {
+                // No sibiling, double black pushed up
+                fixDoubleBlack(parent,mainCanvas);
             }
             else
             {
-                return null;
+                if (sibling.color == COLOR.RED)
+                {
+                    // Sibling red
+                    parent.color = COLOR.RED;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    sibling.color = COLOR.BLACK;
+                    //InOrderTraversal();
+                    update(mainCanvas);
+                    await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    if (sibling.isOnLeft())
+                    {
+                        // left case
+                        rightRotate(parent);
+                        InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                    else
+                    {
+                        // right case
+                        leftRotate(parent);
+                        InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                    fixDoubleBlack(x,mainCanvas);
+                }
+                else
+                {
+                    // Sibling black
+                    if (sibling.hasRedChild())
+                    {
+                        // at least 1 red children
+                        if (sibling.left != null && sibling.left.color == COLOR.RED)
+                        {
+                            if (sibling.isOnLeft())
+                            {
+                                // left left
+                                sibling.left.color = sibling.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                sibling.color = parent.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                rightRotate(parent);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            }
+                            else
+                            {
+                                // right left
+                                sibling.left.color = parent.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                rightRotate(sibling);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                leftRotate(parent);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            }
+                        }
+                        else
+                        {
+                            if (sibling.isOnLeft())
+                            {
+                                // left right
+                                sibling.right.color = parent.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                leftRotate(sibling);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                rightRotate(parent);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            }
+                            else
+                            {
+                                // right right
+                                sibling.right.color = sibling.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                sibling.color = parent.color;
+                                //InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                                leftRotate(parent);
+                                InOrderTraversal();
+                                update(mainCanvas);
+                                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                            }
+                        }
+                        parent.color = COLOR.BLACK;
+                        //InOrderTraversal();
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                    }
+                    else
+                    {
+                        // 2 black children
+                        sibling.color = COLOR.RED;
+                        update(mainCanvas);
+                        await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        if (parent.color == COLOR.BLACK)
+                            fixDoubleBlack(parent, mainCanvas);
+                        else
+                        {
+                            parent.color = COLOR.BLACK;
+                            //InOrderTraversal();
+                            update(mainCanvas);
+                            await Task.Delay(TimeSpan.FromSeconds(this.time));
+                        }
+                    }
+                }
             }
+        }
+
+        // prints level order for given node
+        void levelOrder(Node x)
+        {
+            if (x == null)
+                // return if node is null
+                return;
+
+            // queue for level order
+            Queue<Node> q = new Queue<Node>();
+            Node curr;
+
+            // push x
+            q.Enqueue(x);
+
+            while (q.Count > 0)
+            {
+                // while q is not empty
+                // dequeue
+                curr = q.Peek();
+                q.Dequeue();
+
+                // print node value
+                //if (curr == null) Console.Write("NULL");
+                Console.Write("{0} ", curr.val);
+                Console.Write("{0} ", curr.color == COLOR.RED ? "R " : "B ");
+                Console.WriteLine("parent: {0} ", curr.parent == null ? -1 : curr.parent.val);
+                // push children to queue
+                if (curr.left != null)
+                    q.Enqueue(curr.left);
+                if (curr.right != null)
+                    q.Enqueue(curr.right);
+            }
+        }
+
+        // prints inorder recursively
+        void inorder(Node x)
+        {
+            if (x == null)
+                return;
+            inorder(x.left);
+            //cout << x.val << " ";
+            inorder(x.right);
+        }
+
+        // constructor
+        // initialize root
+        public RBTree() { root = null; }
+
+        Node getRoot() { return root; }
+
+        // searches for given value
+        // if found returns the node (used for delete)
+        // else returns the last node while traversing (used in insert)
+        void move(Ellipse target, double oldX, double oldY, double newX,
+        double newY, double time)
+        {
+            TranslateTransform trans = new TranslateTransform();
+
+            target.RenderTransform = trans;
+            target.RenderTransformOrigin = new Point(0, 0);
+            DoubleAnimation anim1 = new DoubleAnimation(oldY, newY,
+    TimeSpan.FromSeconds(time));
+
+            trans.BeginAnimation(TranslateTransform.YProperty, anim1);
+
+            DoubleAnimation anim2 = new DoubleAnimation(oldX, newX,
+    TimeSpan.FromSeconds(time));
+
+            trans.BeginAnimation(TranslateTransform.XProperty, anim2);
+
+
+        }
+        public async void find(int value,Canvas mainCanvas)
+        {
+            
+            Ellipse Circle = new Ellipse();
+            Circle.StrokeThickness = 3;
+            Circle.Stroke = Brushes.Blue;
+            Circle.Width = 41;
+            Circle.Height = 41;
+            Circle.Opacity = 1;
+            
+            mainCanvas.Children.Add(Circle);
+            Node cur = this.root;
+            if ( value == cur.val)
+            {
+                Canvas.SetTop(Circle, 20);
+                Canvas.SetLeft(Circle, 464);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                mainCanvas.Children.Remove(Circle);
+                return;
+            }
+            while (cur != null)
+            {
+              
+                if ( cur.val == value)
+                {
+                    break;
+                }
+                else if ( value < cur.val) cur = cur.left;
+                else if ( value > cur.val) cur = cur.right;
+                point cur_coordinate = find_point(cur);
+                if (cur.flo == 1 && cur.parent.pos == 1)
+                {
+                    move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
+                }
+                else
+                {
+                    point par_coordinate = find_point(cur.parent);
+                    move(Circle, par_coordinate.x - cur_coordinate.x, par_coordinate.y - cur_coordinate.y, 0, 0, time);
+                }
+                Canvas.SetTop(Circle, cur_coordinate.y);
+                Canvas.SetLeft(Circle, cur_coordinate.x);
+                await Task.Delay(TimeSpan.FromSeconds(time));
+
+            }
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            mainCanvas.Children.Remove(Circle);
+        }
+        public Node search(int n)
+        {
+            Node temp = root;
+            while (temp != null)
+            {
+                if (n < temp.val)
+                {
+                    if (temp.left == null)
+                        break;
+                    else
+                        temp = temp.left;
+                }
+                else if (n == temp.val)
+                {
+                    break;
+                }
+                else
+                {
+                    if (temp.right == null)
+                        break;
+                    else
+                        temp = temp.right;
+                }
+            }
+
+            return temp;
+
+        }
+
+        // inserts the given value to tree
+        public async void insert(int n,Canvas mainCanvas)
+        {
+            Node newNode = new Node(n);
+            if (root == null)
+            {
+                // when root is null
+                // simply insert value at root
+                newNode.color = COLOR.BLACK;
+                //InOrderTraversal();
+                root = newNode;
+
+          
+
+                //   this.find(n, slider, mainCanvas);           
+                update(mainCanvas);
+                 await Task.Delay(TimeSpan.FromSeconds(this.time));
+            }
+            else
+            {
+                Node Y = null;
+                Node X = root;
+                while (X != null)
+                {
+                    Y = X;
+                    if (newNode.val < X.val)
+                    {
+                        X = X.left;
+                    }
+                    else
+                    {
+                        X = X.right;
+                    }
+                }
+                newNode.parent = Y;
+                if (Y == null)
+                {
+                    root = newNode;
+                }
+                else if (newNode.val < Y.val)
+                {
+                    Y.left = newNode;
+                }
+                else
+                {
+                    Y.right = newNode;
+                }
+
+                newNode.left = null;
+                newNode.right = null;
+                newNode.color = COLOR.RED;
+
+
+
+                Ellipse Circle = new Ellipse();
+                Circle.StrokeThickness = 3;
+                Circle.Stroke = Brushes.Blue;
+                Circle.Width = 41;
+                Circle.Height = 41;
+                Circle.Opacity = 1;
+
+                mainCanvas.Children.Add(Circle);
+                Node cur = this.root;
+          
+                while (cur != null)
+                {
+                  
+                 
+                    if (cur.val == newNode.parent.val)
+                    {
+                        if(cur==this.root)
+                        {
+                            Canvas.SetTop(Circle, 20);
+                            Canvas.SetLeft(Circle, 464);
+                        }    
+                        break;
+                    }
+                    else if (newNode.parent.val < cur.val) cur = cur.left;
+                    else if (newNode.parent.val > cur.val) cur = cur.right;
+                    point cur_coordinate = find_point(cur);
+                    if (cur.flo == 1 && cur.parent.pos == 1)
+                    {
+                       
+                        move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
+                    }
+                    else
+                    {
+                        point par_coordinate = find_point(cur.parent);
+                       
+                        move(Circle, par_coordinate.x - cur_coordinate.x, par_coordinate.y - cur_coordinate.y, 0, 0, time);
+
+                    }
+                    Canvas.SetTop(Circle, cur_coordinate.y);
+                    Canvas.SetLeft(Circle, cur_coordinate.x);
+
+                    await Task.Delay(TimeSpan.FromSeconds(time));
+
+                }
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                mainCanvas.Children.Remove(Circle);
+                InOrderTraversal();
+                update(mainCanvas);
+                await Task.Delay(TimeSpan.FromSeconds(this.time));
+                fixRedRed(newNode,mainCanvas);
+            }
+        }
+
+        // utility function that deletes the node with given value
+        public async void deleteByVal(int n,Canvas mainCanvas)
+        {
+            if (root == null)
+                // Tree is empty
+                return;
+
+            //Node v = search(n), u;
+            Node v = search(n);
+
+            Ellipse Circle = new Ellipse();
+            Circle.StrokeThickness = 3;
+            Circle.Stroke = Brushes.Blue;
+            Circle.Width = 41;
+            Circle.Height = 41;
+            Circle.Opacity = 1;
+
+            mainCanvas.Children.Add(Circle);
+            Node cur = this.root;
+            if (v.val == cur.val)
+            {
+                Canvas.SetTop(Circle, 20);
+                Canvas.SetLeft(Circle, 464);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                mainCanvas.Children.Remove(Circle);
+
+            }
+            while (cur != null)
+            {
+
+                if (cur.val == v.val)
+                {
+                    break;
+                }
+                else if (v.val < cur.val) cur = cur.left;
+                else if (v.val > cur.val) cur = cur.right;
+                point cur_coordinate = find_point(cur);
+                if (cur.flo == 1 && cur.parent.pos == 1)
+                {
+                    move(Circle, 464 - cur_coordinate.x, 20 - cur_coordinate.y, 0, 0, time);
+                }
+                else
+                {
+                    point par_coordinate = find_point(cur.parent);
+                    move(Circle, par_coordinate.x - cur_coordinate.x, par_coordinate.y - cur_coordinate.y, 0, 0, time);
+                }
+                Canvas.SetTop(Circle, cur_coordinate.y);
+                Canvas.SetLeft(Circle, cur_coordinate.x);
+                await Task.Delay(TimeSpan.FromSeconds(time));
+
+            }
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            mainCanvas.Children.Remove(Circle);
+
+            deleteNode(v,mainCanvas);
+        }
+        public void printLevelOrder()
+        {
+            Console.WriteLine("Level order: ");
+            if (root == null)
+                Console.WriteLine("Tree is empty");
+            else
+                levelOrder(root);
+            Console.WriteLine();
         }
         public async void update(Canvas mainCanvas)
         {
@@ -172,61 +913,6 @@ namespace Navigation_Drawer_App
 
             //await Task.Delay(TimeSpan.FromSeconds(this.time));
         }
-
-        public async void Insert(int item, Canvas mainCanvas)
-        {
-            Node newItem = new Node(item);
-            if (root == null)
-            {
-                root = newItem;
-                root.colour = Colour.Black;
-                InOrderTraversal();
-                update(mainCanvas);
-                return;
-            }
-            Node Y = null;
-            Node X = root;
-            while (X != null)
-            {
-                Y = X;
-                if (newItem.data < X.data)
-                {
-                    X = X.left;
-                }
-                else
-                {
-                    X = X.right;
-                }
-            }
-            newItem.parent = Y;
-            if (Y == null)
-            {
-                root = newItem;
-            }
-            else if (newItem.data < Y.data)
-            {
-                Y.left = newItem;
-            }
-            else
-            {
-                Y.right = newItem;
-            }
-            newItem.left = null;
-            newItem.right = null;
-            newItem.colour = Colour.Red;
-
-            InOrderTraversal();
-            update(mainCanvas);
-            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-            InsertFixUp(newItem, mainCanvas);
-            max_page++;
-            //await Task.Delay(TimeSpan.FromSeconds(this.time));
-            FileStream fs = File.Open("State" + max_page.ToString() + ".xaml", FileMode.Create);
-            XamlWriter.Save(mainCanvas, fs);
-            fs.Close();
-        }
-
         private void InOrderTraversal(Node current, ref int index)
         {
             if (current != null)
@@ -234,7 +920,7 @@ namespace Navigation_Drawer_App
                 InOrderTraversal(current.left, ref index);
 
                 current.pos = index;
-                index++;
+                index = index + 1;
 
                 InOrderTraversal(current.right, ref index);
             }
@@ -242,426 +928,10 @@ namespace Navigation_Drawer_App
 
         public async void InOrderTraversal()
         {
+
             int index = 0;
             InOrderTraversal(this.root, ref index);
         }
-        private async void InsertFixUp(Node item, Canvas mainCanvas)
-        {
-            //Checks Red-Black Tree properties
-            while (item.parent != null && item.parent.colour == Colour.Red)
-            {
-                if (item.parent == item.parent.parent.left)
-                {
-                    Node Y = item.parent.parent.right;
-                    if (Y != null)//Case 1: uncle is red
-                    {
-                        if (Y.colour == Colour.Red)
-                        {
-                            item.parent.colour = Colour.Black;
-
-                            //InOrderTraversal();
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            Y.colour = Colour.Black;
-
-                            //InOrderTraversal();
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item.parent.parent.colour = Colour.Red;
-
-                            //InOrderTraversal();
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item = item.parent.parent;
-                        }
-                        else //Case 2: uncle is black
-                        {
-                            if (item == item.parent.right)
-                            {
-                                item = item.parent;
-                                LeftRotate(item);
-
-                                InOrderTraversal();
-                                update(mainCanvas);
-                                await Task.Delay(TimeSpan.FromSeconds(this.time));
-                            }
-                            //Case 3: recolour & rotate
-                            item.parent.colour = Colour.Black;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            Y.colour = Colour.Black;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item.parent.parent.colour = Colour.Red;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        }
-                    }
-                    else
-                    {
-                        if (item == item.parent.right)
-                        {
-                            item = item.parent;
-                            LeftRotate(item);
-
-                            InOrderTraversal();
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        }
-                        //Case 3: recolour & rotate
-                        item.parent.colour = Colour.Black;
-
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        item.parent.parent.colour = Colour.Red;
-
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        RightRotate(item.parent.parent);
-
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    }
-
-                }
-                else if (item.parent == item.parent.parent.right)
-                {
-                    //mirror image of code above
-                    Node X = null;
-
-                    X = item.parent.parent.left;
-                    if (X != null)//Case 1
-                    {
-                        if (X.colour == Colour.Black)
-                        {
-                            item.parent.colour = Colour.Red;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            X.colour = Colour.Red;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item.parent.parent.colour = Colour.Black;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item = item.parent.parent;
-
-                        }
-                        else //Case 2
-                        {
-                            if (item == item.parent.left)
-                            {
-                                item = item.parent;
-                                RightRotate(item);
-
-                                InOrderTraversal();
-                                update(mainCanvas);
-                                await Task.Delay(TimeSpan.FromSeconds(this.time));
-                            }
-                            //Case 3: recolour & rotate
-                            item.parent.colour = Colour.Black;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            X.colour = Colour.Black;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                            item.parent.parent.colour = Colour.Red;
-
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        }
-                    }
-                    else
-                    {
-                        if (item == item.parent.left)
-                        {
-                            item = item.parent;
-                            RightRotate(item);
-
-                            InOrderTraversal();
-                            update(mainCanvas);
-                            await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        }
-                        //Case 3: recolour & rotate
-                        item.parent.colour = Colour.Black;
-
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        item.parent.parent.colour = Colour.Red;
-
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        LeftRotate(item.parent.parent);
-
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                    }
-
-                }
-                root.colour = Colour.Black;
-
-                update(mainCanvas);
-                await Task.Delay(TimeSpan.FromSeconds(this.time));
-            }
-        }
-        public void Delete(int key, Canvas mainCanvas)
-        {
-
-            Node item = Find(key);
-            Node X = null;
-            Node Y = null;
-
-            if (item == null)
-            {
-                return;
-            }
-            if (item.left == null || item.right == null)
-            {
-                Y = item;
-            }
-            else
-            {
-                Y = TreeSuccessor(item);
-            }
-            if (Y.left != null)
-            {
-                X = Y.left;
-            }
-            else
-            {
-                X = Y.right;
-            }
-            if (X != null)
-            {
-                X.parent = Y;
-            }
-            if (Y.parent == null)
-            {
-                root = X;
-            }
-            else if (Y == Y.parent.left)
-            {
-                Y.parent.left = X;
-            }
-            else
-            {
-                Y.parent.left = X;
-            }
-            if (Y != item)
-            {
-                item.data = Y.data;
-            }
-            if (Y.colour == Colour.Black)
-            {
-                DeleteFixUp(X, mainCanvas);
-            }
-
-            update(mainCanvas);
-        }
-        private async void DeleteFixUp(Node X, Canvas mainCanvas)
-        {
-
-            while (X != null && X != root && X.colour == Colour.Black)
-            {
-                if (X == X.parent.left)
-                {
-                    Node W = X.parent.right;
-                    if (W.colour == Colour.Red)
-                    {
-                        W.colour = Colour.Black; //case 1
-
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        X.parent.colour = Colour.Red; //case 1
-
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        LeftRotate(X.parent); //case 1
-
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        W = X.parent.right; //case 1
-                    }
-                    if (W.left.colour == Colour.Black && W.right.colour == Colour.Black)
-                    {
-                        W.colour = Colour.Red; //case 2
-
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        X = X.parent; //case 2
-                    }
-                    else if (W.right.colour == Colour.Black)
-                    {
-                        W.left.colour = Colour.Black; //case 3
-
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        W.colour = Colour.Red; //case 3
-
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        RightRotate(W); //case 3
-
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-
-                        W = X.parent.right; //case 3
-                    }
-                    W.colour = X.parent.colour; //case 4
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    X.parent.colour = Colour.Black; //case 4
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    W.right.colour = Colour.Black; //case 4
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    LeftRotate(X.parent); //case 4
-                    InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    X = root; //case 4
-                }
-                else
-                {
-                    Node W = X.parent.left;
-                    if (W.colour == Colour.Red)
-                    {
-                        W.colour = Colour.Black;
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        X.parent.colour = Colour.Red;
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        RightRotate(X.parent);
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        W = X.parent.left;
-                    }
-                    if (W.right.colour == Colour.Black && W.left.colour == Colour.Black)
-                    {
-                        W.colour = Colour.Black;
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        X = X.parent;
-                    }
-                    else if (W.left.colour == Colour.Black)
-                    {
-                        W.right.colour = Colour.Black;
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        W.colour = Colour.Red;
-                        //InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        LeftRotate(W);
-                        InOrderTraversal();
-                        update(mainCanvas);
-                        await Task.Delay(TimeSpan.FromSeconds(this.time));
-                        W = X.parent.left;
-                    }
-                    W.colour = X.parent.colour;
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    X.parent.colour = Colour.Black;
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    W.left.colour = Colour.Black;
-                    //InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    RightRotate(X.parent);
-                    InOrderTraversal();
-                    update(mainCanvas);
-                    await Task.Delay(TimeSpan.FromSeconds(this.time));
-                    X = root;
-                }
-            }
-            if (X != null)
-            {
-                X.colour = Colour.Black;
-                //InOrderTraversal();
-                update(mainCanvas);
-                await Task.Delay(TimeSpan.FromSeconds(this.time));
-            }
-        }
-        private Node Minimum(Node X)
-        {
-            while (X.left.left != null)
-            {
-                X = X.left;
-            }
-            if (X.left.right != null)
-            {
-                X = X.left.right;
-            }
-            return X;
-        }
-        private Node TreeSuccessor(Node X)
-        {
-            if (X.left != null)
-            {
-                return Minimum(X);
-            }
-            else
-            {
-                Node Y = X.parent;
-                while (Y != null && X == Y.right)
-                {
-                    X = Y;
-                    Y = Y.parent;
-                }
-                return Y;
-            }
-        }
-
         point find_point(Node node) // set toa do diem ve circle
         {
             point toado;
@@ -680,16 +950,18 @@ namespace Navigation_Drawer_App
             Circle.Width = 40;
             Circle.Height = 40;
             Circle.Opacity = 0.5;
-            if (node.colour == 0)
+            if (/*node.colour == 0*/ node.color == 0)
                 Circle.Fill = System.Windows.Media.Brushes.Red;
             else
                 Circle.Fill = System.Windows.Media.Brushes.Gray;
             // add content
             Label content = new Label();
-            content.Content = node.data.ToString();
+            content.Content = /*node.data.ToString();*/ node.val.ToString();
             //content.Content = node.pos.ToString();
             content.Foreground = System.Windows.Media.Brushes.Black;
             content.HorizontalContentAlignment = HorizontalAlignment.Center;
+            content.FontSize = 15;
+            
             mainCanvas.Children.Add(Circle);
             mainCanvas.Children.Add(content);
 
@@ -700,7 +972,7 @@ namespace Navigation_Drawer_App
             Canvas.SetLeft(Circle, coordinate_Circle.x);
 
             Canvas.SetTop(content, coordinate_Circle.y);
-            Canvas.SetLeft(content, coordinate_Circle.x);
+            Canvas.SetLeft(content, coordinate_Circle.x+5);
 
 
             return;
@@ -760,10 +1032,6 @@ namespace Navigation_Drawer_App
                 else
                 {
                     node.flo = node.parent.flo + 1;
-                    /*if (node.parent.left == node)
-                        node.pos = node.parent.pos * 2 - 1;
-                    else if (node.parent.right == node)
-                        node.pos = node.parent.pos * 2;*/
                 }
                 if (node.parent != null)
                 {
@@ -771,7 +1039,7 @@ namespace Navigation_Drawer_App
                 }
 
                 Draw_Circle(node, mainCanvas);
-
+               
                 DisplayTree(node.left, mainCanvas);
                 DisplayTree(node.right, mainCanvas);
 
@@ -779,6 +1047,70 @@ namespace Navigation_Drawer_App
             }
             else return;
         }
+        /*private void clone(Node newRoot,Node root) 
+        {
+            
+            Node right = root.right;
+            Node left = root.left;
+            if (right == null)
+                newRoot.right = null;
+            else
+            {
+                newRoot.right = new Node(right.val);
+                newRoot.right.color = right.color;
+                //newRoot.right.flo = right.flo;
+                //newRoot.right.pos = right.pos;
+                newRoot.right.parent = newRoot;
+                clone(newRoot.right,root.right);
+            }
+            if (left == null)
+                newRoot.left = null;
+            else
+            {
+                newRoot.left = new Node(left.val);
+                newRoot.left.color = left.color;
+                //newRoot.left.flo = left.flo;
+                //newRoot.left.pos = left.pos;
+                newRoot.left.parent = newRoot;
 
+                clone(newRoot.left,root.left);
+            }
+        }
+        public Node clone()
+        {
+            Node newRoot = null;
+            if (this.root != null)
+            {
+                newRoot = new Node(this.root.val);
+                newRoot.color = this.root.color;
+                newRoot.flo = this.root.flo;
+                newRoot.pos = this.root.pos;
+                clone(newRoot, this.root);
+            }
+            return newRoot;
+        }*/
+        private Node clone(Node current)
+        {
+            if (current != null)
+            {
+                Node t = new Node(current.val);
+                t.color = current.color;
+                t.left = clone(current.left);
+                if (t.left != null) t.left.parent = t;
+                t.right = clone(current.right);
+                if (t.right != null) t.right.parent = t;
+                if (current.parent == null) t.parent = current.parent;
+                return t;
+            }
+            return null;
+        }
+        //return root of cloned tree
+        public RBTree cloneTree()
+        {
+            RBTree tree = new RBTree();
+            tree.root = this.clone(this.root);
+            return tree;
+        }
     }
+    
 }
