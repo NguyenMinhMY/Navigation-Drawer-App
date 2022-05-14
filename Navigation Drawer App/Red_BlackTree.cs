@@ -180,13 +180,21 @@ namespace Navigation_Drawer_App
             x1.color = x2.color;
             x2.color = temp;
         }
-
+        //swap val pos flo
         void swapValues(Node u, Node v)
         {
             int temp;
             temp = u.val;
             u.val = v.val;
             v.val = temp;
+            //pos flo
+            temp = u.pos;
+            u.pos = v.pos;
+            v.pos = temp;
+
+            temp = u.flo;
+            u.flo = v.flo;
+            v.flo = temp;
         }
 
         // fix red red at given node
@@ -385,8 +393,11 @@ namespace Navigation_Drawer_App
                 if (v == root)
                 {
                     // v is root, assign the value of u to v, and delete u
+                    
                     await Task.Delay(TimeSpan.FromSeconds(this.time));
                     v.val = u.val;
+                    v.pos = u.pos;
+                    v.flo = u.flo;
                     update(mainCanvas);
                     await Task.Delay(TimeSpan.FromSeconds(this.time));
                     v.left = v.right = null;
@@ -438,7 +449,7 @@ namespace Navigation_Drawer_App
             await Task.Delay(TimeSpan.FromSeconds(this.time));
             update(mainCanvas);
             await Task.Delay(TimeSpan.FromSeconds(this.time));
-            deleteNode(u,mainCanvas);
+            deleteNode(u, mainCanvas);
         }
 
         async void fixDoubleBlack(Node x,Canvas mainCanvas)
@@ -482,7 +493,7 @@ namespace Navigation_Drawer_App
                         update(mainCanvas);
                         await Task.Delay(TimeSpan.FromSeconds(this.time));
                     }
-                    fixDoubleBlack(x,mainCanvas);
+                    fixDoubleBlack(x, mainCanvas);
                 }
                 else
                 {
@@ -625,7 +636,7 @@ namespace Navigation_Drawer_App
             if (x == null)
                 return;
             inorder(x.left);
-            //cout << x.val << " ";
+            
             inorder(x.right);
         }
 
@@ -749,7 +760,7 @@ namespace Navigation_Drawer_App
 
                 //   this.find(n, slider, mainCanvas);           
                 update(mainCanvas);
-                 await Task.Delay(TimeSpan.FromSeconds(this.time));
+                await Task.Delay(TimeSpan.FromSeconds(this.time));
             }
             else
             {
@@ -935,9 +946,16 @@ namespace Navigation_Drawer_App
         point find_point(Node node) // set toa do diem ve circle
         {
             point toado;
-            toado.x = 464 + (node.pos - this.root.pos) * 40;
-            toado.y = 20 + 60 * node.flo;
+            if (node != null)
+            {
+                
+                toado.x = 464 + (node.pos - this.root.pos) * 40;
+                toado.y = 20 + 60 * node.flo;
 
+                return toado;
+            }
+            toado.x = 0;
+            toado.y = 0;
             return toado;
         }
         public void Draw_Circle(Node node, Canvas mainCanvas)
@@ -1095,6 +1113,8 @@ namespace Navigation_Drawer_App
             {
                 Node t = new Node(current.val);
                 t.color = current.color;
+                t.pos = current.pos;
+                t.flo = current.flo;
                 t.left = clone(current.left);
                 if (t.left != null) t.left.parent = t;
                 t.right = clone(current.right);
