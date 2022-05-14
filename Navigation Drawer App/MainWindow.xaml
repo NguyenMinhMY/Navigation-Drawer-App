@@ -82,7 +82,6 @@
                                 BorderThickness="0"
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True">
-
                         </Border>
 
                         <ControlTemplate.Triggers>
@@ -185,16 +184,8 @@
 
                 </Button.Background>
             </Button>
-            <Button x:Name="EnlargeBtn" Grid.Column="3" BorderThickness="0"  Click="EnlargeBtn_Click"
-                         
-                    >
-                <Button.Background>
 
-                    <ImageBrush ImageSource="Assets/enlarge.png" Stretch="Fill" />
-
-                </Button.Background>
-            </Button>
-            <Button x:Name="MinimizeBtn" BorderThickness="0" Grid.Column="1" Click="MinimizeBtn_Click"
+            <Button x:Name="MinimizeBtn" BorderThickness="0" Grid.Column="3" Click="MinimizeBtn_Click" Grid.ColumnSpan="3" Margin="10,0,25,0"
                          
                     >
                 <Button.Background>
@@ -203,7 +194,7 @@
 
                 </Button.Background>
             </Button>
-            <Label Grid.Column="0" Content="Tool cua Bao" Margin="0,0,6.333,0"/>
+
         </Grid>
 
 
@@ -225,23 +216,18 @@
             <Grid Background="Black" Grid.ColumnSpan="3" Margin="0,0,0,-0.333">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="389*"/>
-                    <ColumnDefinition Width="611*"/>
+                    <ColumnDefinition Width="557*"/>
+                    <ColumnDefinition Width="53*"/>
                 </Grid.ColumnDefinitions>
 
                 <!--// Background Image //-->
 
-                <Canvas x:Name="mainCanvas" PreviewMouseLeftButtonDown="mainCanvas_PreviewMouseLeftButtonDown" Margin="72,64,0,49" HorizontalAlignment="Left" Width="928"
-                        Background="Bisque" Grid.ColumnSpan="2">
+                <Canvas x:Name="mainCanvas"  Margin="72,64,0,49" HorizontalAlignment="Left" Width="918"
+                        Background="White" Grid.ColumnSpan="3" >
 
 
 
-                    <!--<Canvas.Background>
 
-                        <ImageBrush x:Name="img_bg"
-                                ImageSource="Assets/iron.jpg"
-                                Stretch="Fill"/>
-
-                    </Canvas.Background>-->
 
                 </Canvas>
                 <!--// Navigation Panel //-->
@@ -249,114 +235,13 @@
                 <Grid   x:Name="nav_pnl"
                     HorizontalAlignment="Left"
                     Width="72"
-                    Background="#2E333A">
+                    Background="Black">
 
                     <StackPanel x:Name="st_pnl">
 
                         <!--// Grid for the Menu Toggle Button //-->
 
                         <Grid Height="90">
-
-                            <!--// Menu title text //-->
-
-                            <TextBlock  Grid.Row="1"
-                                    Grid.Column="0"
-                                    Margin="80,-20,0,0"
-                                    Text="M E N U"
-                                    Foreground="White"
-                                    FontSize="22"
-                                    Background="Transparent"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource font_style}">
-                            
-                            <!--// Shadow Effect //-->
-
-                                <TextBlock.Effect>
-
-                                    <DropShadowEffect  BlurRadius="10"
-                                                   ShadowDepth="1"
-                                                   Direction="-90"
-                                                   Color="White"/>
-
-                                </TextBlock.Effect>
-
-                            </TextBlock>
-
-                            <!--// Toggle Button //-->
-
-                            <ToggleButton x:Name="Tg_Btn"
-                                      Grid.Column="0"
-                                      VerticalAlignment="Center"
-                                      HorizontalAlignment="Left"
-                                      Margin="22,-20,0,0"
-                                      Height="30"
-                                      Width="30"
-                                      BorderThickness="0"
-                                      Style="{StaticResource tb_style}" Unchecked="Tg_Btn_Unchecked" Checked="Tg_Btn_Checked">
-
-                                <!--// Toggle button default background image //-->
-
-                                <ToggleButton.Background>
-
-                                    <ImageBrush ImageSource="Assets/tgBtn_default.png"
-                                            Stretch="None"/>
-
-                                </ToggleButton.Background>
-
-                                <!--// Toggle Button - Checked, Unchecked events //-->
-
-                                <ToggleButton.Triggers>
-
-                                    <EventTrigger RoutedEvent="ToggleButton.Unchecked">
-
-                                        <BeginStoryboard>
-
-                                            <Storyboard x:Name="HideStackPanel" >
-
-                                                <DoubleAnimation    
-                                                
-                                                Storyboard.TargetName="nav_pnl"
-                                                Storyboard.TargetProperty="Width"
-                                                BeginTime="0:0:0"
-                                                From="230" To="72"
-                                                Duration="0:0:0.2">
-
-                                                </DoubleAnimation>
-
-                                            </Storyboard>
-
-                                        </BeginStoryboard>
-
-                                    </EventTrigger>
-
-                                    <EventTrigger RoutedEvent="ToggleButton.Checked">
-
-                                        <BeginStoryboard>
-
-                                            <Storyboard x:Name="ShowStackPanel">
-
-                                                <DoubleAnimation
-                                                
-                                                Storyboard.TargetName="nav_pnl"
-                                                Storyboard.TargetProperty="Width"
-                                                BeginTime="0:0:0"
-                                                From="72" To="230"
-                                                Duration="0:0:0.3">
-
-                                                </DoubleAnimation>
-
-                                            </Storyboard>
-
-                                        </BeginStoryboard>
-
-                                    </EventTrigger>
-
-                                </ToggleButton.Triggers>
-
-
-
-                            </ToggleButton>
 
                         </Grid>
 
@@ -370,12 +255,12 @@
                             <!--// Home //-->
 
                             <ListViewItem HorizontalAlignment="Left"
-                                      Margin="0,0,0,15" MouseEnter="ListViewItem_MouseEnter"
+                                      Margin="0,0,0,15" Height="80"
                                       >
 
 
                                 <StackPanel Orientation="Horizontal"
-                              Width="230" Height="65"  >
+Width="230" Height="65"  >
                                     <Button x:Name="insertBtn" Width="41" RenderTransformOrigin="0.5,0.5" Margin="0,10,0,20.333" Click="insertBtn_Click"
                                       >
 
@@ -385,25 +270,7 @@
                                                         />
 
                                         </Button.Background>
-                                        <Button.Triggers>
-                                            <EventTrigger x:Name="Show_1" RoutedEvent="Button.Click">
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation
-                                                     Storyboard.TargetName="insert_Grid"
-                                                     Storyboard.TargetProperty="Width"
-                                                     From="0" To="300"
-                                                     Duration="0:0:0.3"
-                                
-                                
-                                >
 
-                                                        </DoubleAnimation>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </EventTrigger>
-
-                                        </Button.Triggers>
 
                                     </Button>
 
@@ -430,7 +297,7 @@
                             <!--// Contacts //-->
 
                             <ListViewItem HorizontalAlignment="Left"
-                                      Margin="0,0,0,15" MouseEnter="ListViewItem_MouseEnter"
+                                      Margin="0,0,0,15"  Height="80"
                                       >
 
                                 <StackPanel Orientation="Horizontal"
@@ -440,30 +307,11 @@
 
 
                                         <Button.Background>
-
                                             <ImageBrush ImageSource="Assets/rsz_delete.png" Stretch="Fill"
                                                         />
 
                                         </Button.Background>
-                                        <Button.Triggers>
-                                            <EventTrigger x:Name="Show_2" RoutedEvent="Button.Click">
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation
-                                                     Storyboard.TargetName="delete_Grid"
-                                                     Storyboard.TargetProperty="Width"
-                                                     From="0" To="300"
-                                                     Duration="0:0:0.3"
-                                
-                                
-                                >
 
-                                                        </DoubleAnimation>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </EventTrigger>
-
-                                        </Button.Triggers>
                                     </Button>
                                     <TextBlock Text="Remove"
                                            Margin="17,0,0,0"
@@ -486,7 +334,7 @@
                             <!--// Messages //-->
 
                             <ListViewItem HorizontalAlignment="Left"
-                                      Margin="0,0,0,15" MouseEnter="ListViewItem_MouseEnter"
+                                      Margin="0,0,0,15" Height="80"
                                       >
 
                                 <StackPanel Orientation="Horizontal"
@@ -502,25 +350,7 @@
                                                         />
 
                                         </Button.Background>
-                                        <Button.Triggers>
-                                            <EventTrigger x:Name="Show_3" RoutedEvent="Button.Click">
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation
-                                                     Storyboard.TargetName="find_Grid"
-                                                     Storyboard.TargetProperty="Width"
-                                                     From="0" To="300"
-                                                     Duration="0:0:0.3"
-                                
-                                
-                                >
 
-                                                        </DoubleAnimation>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </EventTrigger>
-
-                                        </Button.Triggers>
                                     </Button>
 
                                     <TextBlock Text="Find"
@@ -543,46 +373,12 @@
 
                             <!--// Maps //-->
 
-                            <ListViewItem HorizontalAlignment="Left"
-                                      Margin="0,0,0,15" MouseEnter="ListViewItem_MouseEnter"
-                                      >
 
-                                <StackPanel Orientation="Horizontal"
-                                        Width="230" Height="65">
-
-                                    <Button x:Name="downloadBtn" Width="41" RenderTransformOrigin="0.5,0.5" Margin="0,10,0,20.333">
-
-
-                                        <Button.Background>
-
-                                            <ImageBrush ImageSource="Assets/rsz_dowload.png" Stretch="Fill"
-                                                        />
-
-                                        </Button.Background>
-                                    </Button>
-
-                                    <TextBlock Text="Download"
-                                           Margin="25,0,0,0"
-                                           Style="{StaticResource font_style}"/>
-
-                                </StackPanel>
-
-                                <!--// Tooltip //-->
-
-                                <ListViewItem.ToolTip>
-
-                                    <ToolTip x:Name="tt_download"
-                                         Content="Download"
-                                         Style="{StaticResource tt_style}"/>
-
-                                </ListViewItem.ToolTip>
-
-                            </ListViewItem>
 
                             <!--// Settings //-->
 
                             <ListViewItem HorizontalAlignment="Left"
-                                      Margin="0,0,0,15" MouseEnter="ListViewItem_MouseEnter"
+                                      Margin="0,0,0,15" Height="80"
                                       >
 
                                 <StackPanel Orientation="Horizontal"
@@ -607,7 +403,6 @@
                                 <!--// Tooltip //-->
 
                                 <ListViewItem.ToolTip>
-
                                     <ToolTip x:Name="tt_refresh"
                                          Content="Refresh"
                                          Style="{StaticResource tt_style}"/>
@@ -671,7 +466,6 @@
                                             </ControlTemplate>
 
                                         </Setter.Value>
-
                                     </Setter>
 
                                 </Style>
@@ -685,17 +479,22 @@
 
 
                 </Grid>
-                <Button x:Name="Left" Content="Left" HorizontalAlignment="Left" Margin="111,583,0,0" Width="53" Click="Left_Click" Height="30" VerticalAlignment="Top" Grid.Column="1"/>
-                <Button x:Name="Right" Content="Right" RenderTransformOrigin="0.444,1.692" Margin="200,583,358,10" Click="Right_Click" Grid.Column="1" />
-                <Label x:Name="curpage" Content="0" HorizontalAlignment="Left"
-                      Background="Yellow" Margin="289,585,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-                <Label x:Name="maxpage" Content="/Page" HorizontalAlignment="Left"
-                      Background="Yellow" Margin="305,585,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.736,0.384" Grid.Column="1"/>
+                <Button x:Name="Left" Content="SKIP BACK" HorizontalAlignment="Left" Margin="72,583,0,0" Width="101" Click="Left_Click" Height="30" VerticalAlignment="Top"/>
+
+
+                <Grid Margin="300,5,213,564" Grid.ColumnSpan="2">
+                    <Label Content="RED-BLACK Tree Visulazation" HorizontalAlignment="Left" Margin="23,0,0,0" VerticalAlignment="Top" Width="400" Height="50"
+                    Foreground="White"   FontSize="30" Grid.ColumnSpan="2" />
+                    <Border BorderBrush="White" BorderThickness="2" Margin="10,0,0,0.667">
+
+                    </Border>
+                </Grid>
+
             </Grid>
             <!--Create 1 Grid to insert element-->
-            <Grid x:Name="insert_Grid" Margin="690,96,10,466.667"
+            <Grid x:Name="insert_Grid" Margin="78,110,565.333,452.667"
                   Background="#2E333A"
-                  Width="0" Grid.ColumnSpan="3"
+                  Width="0"
                   >
                 <TextBox x:Name="tb_insert" Margin="10,10,89,10">
                 </TextBox>
@@ -719,9 +518,9 @@
                 </Button>
             </Grid>
             <!--Create 1 Grid to delete element-->
-            <Grid x:Name="delete_Grid" Margin="700,161,0,401.667"
+            <Grid x:Name="delete_Grid" Margin="78,206,565.333,356.667"
                   Background="#2E333A"
-                  Width="0" Grid.ColumnSpan="3"
+Width="0"
                   >
                 <TextBox x:Name="tb_delete" Margin="10,10,89,10">
                 </TextBox>
@@ -734,7 +533,7 @@
                                                     Storyboard.TargetName="delete_Grid"
                                                      Storyboard.TargetProperty="Width"
                                                      From="300" To="0"
-                                                     Duration="0:0:0.3"
+                                                     Duration="0:0:0.1"
                                 
                                 
                                 >
@@ -747,9 +546,9 @@
                 </Button>
             </Grid>
             <!--Create 1 Grid to find element-->
-            <Grid x:Name="find_Grid" Margin="700,226,0,336.667"
+            <Grid x:Name="find_Grid" Margin="78,300,565.333,263.667"
                   Background="#2E333A"
-                  Width="0" Grid.ColumnSpan="3"
+                  Width="0"
                   >
                 <TextBox x:Name="tb_find" Margin="10,10,89,10">
                 </TextBox>
@@ -763,7 +562,7 @@
                                         Storyboard.TargetName="find_Grid"
                                         Storyboard.TargetProperty="Width"
                                         From="300" To="0"
-                                        Duration="0:0:0.3">
+                                        Duration="0:0:0.1">
 
                                     </DoubleAnimation>
                                 </Storyboard>
@@ -774,12 +573,7 @@
                 </Button>
             </Grid>
 
-            <Label Content="Speed" Canvas.Left="16" Canvas.Top="523" Foreground="Yellow" Margin="78,577,800.333,-0.333"
-                   BorderBrush="Yellow" FontSize="20"/>
-            <Slider x:Name="slider"  Width="160" Margin="163,589,620.333,9.667" Maximum="100" Value="50"/>
 
-            <TextBox x:Name="tb_speed"  Margin="349,589,502.333,9.667" 
-                     Text="{Binding Path= Value, ElementName=slider}" />
         </Grid>
 
     </Grid>
