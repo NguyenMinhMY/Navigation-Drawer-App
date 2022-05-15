@@ -218,7 +218,7 @@ namespace Navigation_Drawer_App
             int value;
             if (!int.TryParse(tb_find.Text, out value))
                 MessageBox.Show("Number is not integer");
-            else if ( tree.search(value).val !=value)
+            else if (tree.search(value) == null)
             {
                 MessageBox.Show("This value is not in tree");
             }

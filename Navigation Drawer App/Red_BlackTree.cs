@@ -722,10 +722,7 @@ namespace Navigation_Drawer_App
             {
                 if (n < temp.val)
                 {
-                    if (temp.left == null)
-                        break;
-                    else
-                        temp = temp.left;
+                    temp = temp.left;
                 }
                 else if (n == temp.val)
                 {
@@ -733,10 +730,7 @@ namespace Navigation_Drawer_App
                 }
                 else
                 {
-                    if (temp.right == null)
-                        break;
-                    else
-                        temp = temp.right;
+                    temp = temp.right;
                 }
             }
 
@@ -860,7 +854,11 @@ namespace Navigation_Drawer_App
 
             //Node v = search(n), u;
             Node v = search(n);
-
+            if (v == null)
+            {
+                MessageBox.Show("The value to deleted is not in the tree");
+                return;
+            }
             Ellipse Circle = new Ellipse();
             Circle.StrokeThickness = 3;
             Circle.Stroke = Brushes.Blue;
